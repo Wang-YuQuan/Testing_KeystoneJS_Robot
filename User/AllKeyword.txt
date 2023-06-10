@@ -1,0 +1,33 @@
+*** Settings ***
+Library    SeleniumLibrary
+Resource    ../Post/AllKeyword.txt
+
+*** Keywords ***
+Go To User Page
+    Click Element    //li[@data-section-label='Users']
+    Sleep    1s
+
+Open Create User
+    Click Element    //*[@data-e2e-list-create-button='header']
+
+Verify Create Empty Field User Warning Message Should Be Visible
+    Open Create User
+    Click Element    //*[@data-button-type='submit']
+    Verify Warning Message Should Be Visible
+    Click Element    //*[@data-button-type='cancel']
+
+Create A New User
+    [Arguments]    ${firstName}    ${lastName}    ${email}    ${password}    ${passwordConfirm}
+    Go To User Page
+    Open Create User
+    Input Text    //*[@name='name.first']    ${firstName}
+    Input Text    //*[@name='name.last']    ${lastName}
+    Input Text    //*[@name='email']    ${email}
+    Input Text    //*[@name='password']    ${password}
+    Input Text    //*[@name='password_confirm']    ${passwordConfirm}
+    Click Element    //*[@data-button-type='submit']
+
+Verify New User Should Be Exist
+    [Arguments]    ${userName}
+    Click Element    //*[@data-list-path='users']/a
+    Wait Until Element Is Visible    //*[tbody]//tr//td//a[normalize-space()='first last']    timeout= 2s    error=User is not visible.

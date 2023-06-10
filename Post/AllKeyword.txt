@@ -1,0 +1,99 @@
+*** Settings ***
+Library    SeleniumLibrary
+
+*** Keywords ***
+Go To Post Page
+    Click Element    //li[@data-section-label='Posts']
+    Sleep    1s
+    
+Verify Create Empty Title Post Warning Message Should Be Visible
+    Open Create Post
+    Input Text    //*[@class='FormField__inner field-size-full']/input    ${EMPTY}
+    Click Element    //*[@data-button-type='submit']
+    Verify Warning Message Should Be Visible
+    Click Element    //*[@data-button-type='cancel']
+    
+Verify Warning Message Should Be Visible
+    Wait Until Element Is Visible  //*[@data-alert-type='danger']/div
+
+Create A New Post
+    [Arguments]    ${name}
+    Open Create Post
+    Input Text    //*[@class='FormField__inner field-size-full']/input    ${name}
+    Click Element    //*[@data-button-type='submit']
+    Sleep    2s
+    
+Verify New Post Should Be Exist
+    [Arguments]    ${titleName}
+    Click Element    //*[@data-list-path='posts']/a
+    Wait Until Element Is Visible    //*[tbody]//tr//td//a[normalize-space()='${titleName}']    timeout= 2s    error=Post title is not visible.
+
+Input Post Filter
+    [Arguments]    ${titleName}
+    Click Element    //*[@data-list-path='posts']/a
+    Wait Until Element Is Visible    //*[@placeholder='Search']    timeout= 2s    error=Search input is not visible.
+    Input Text    //*[@placeholder='Search']    ${titleName}
+    Sleep    2s
+
+Open Create Post
+    ${CreatePostButton1} =    Set Variable    //*[@data-e2e-list-create-button='no-results']
+    ${CreatePostButton2} =    Set Variable    //*[@data-e2e-list-create-button='header']
+    ${result} =    Run Keyword And Return Status    Wait Until Element Is Visible    ${CreatePostButton1}    timeout= 2s    error=Button is not visible.
+    Run Keyword If    '${result}' == 'True'    Click Element    ${CreatePostButton1}
+    ...       ELSE    Click Element    ${CreatePostButton2}
+
+Open Post By Post Title
+    [Arguments]    ${titleName}
+    Click Element    //*[@data-list-path='posts']/a
+    Input Post Filter    ${titleName}
+    Click Element    //*[tbody]//tr//td//a[normalize-space()='${titleName}']
+
+Edit Post Content
+    [Arguments]    ${state}    ${author}
+    Select Dropdown Field    //*[@for='state']/label/following-sibling::div    //*[@for='state']/label/following-sibling::div//*[@class='Select-input']/input    ${state}
+    Select Dropdown Field    //*[@for='author']/label/following-sibling::div    //*[@for='author']/label/following-sibling::div//*[@class='Select-input']/input    ${author}
+    Click Element    //*[@data-button='update']
+
+Verify Success Message Is Visible
+    Wait Until Element Is Visible    //*[@data-alert-type='success']    error=Success message is not visible.
+    
+
+Verify Edited Post In Postlist
+    [Arguments]    ${titleName}    ${state}    ${author}
+    Click Element    //*[@data-list-path='posts']/a
+    Input Post Filter    ${titleName}
+    Wait Until Element Is Visible    //*[tbody]//tr//td//a[normalize-space()='${titleName}']    timeout= 2s    error=Post title is not visible.
+    Wait Until Element Is Visible    //*[tbody]//tr//td//div[normalize-space()='${state}']    timeout= 2s    error=Post state is not visible.
+    Wait Until Element Is Visible    //*[tbody]//tr//td//a[normalize-space()='${author}']    timeout= 2s    error=Post author is not visible.
+
+Select Dropdown Field
+    [Arguments]    ${locator1}    ${locator2}    ${value}
+    Wait Until Element Is Visible    ${locator1}    error=Dropdown is not visible.
+    Click Element    ${locator1}
+    Input Text    ${locator2}    ${value}
+    Press Keys    ${locator2}    ENTER
+    Sleep    1s
+
+Verify Only Filter Post In Postlist
+    [Arguments]    ${titleName}
+    Wait Until Element Is Not Visible    //*[tbody]//tr//td//a[not(normalize-space()='${titleName}')]    error=Item is visible.
+
+Delete Post By Name
+    [Arguments]    ${titleName}
+    Click Element    //*[@data-list-path='posts']/a
+    Input Post Filter    ${titleName}
+    Click Element    //*[contains(@class, 'ItemList__col--delete')]
+    Click Element    //*[@data-button-type='confirm']
+
+Verify Deleted Post Is Not Visible In Postlist
+    [Arguments]    ${titleName}
+    Input Post Filter    ${titleName}
+    Wait Until Element Is Not Visible    //*[tbody]//tr//td//a[normalize-space()='${titleName}']    error=Success message is visible.
+
+Create Post's Teardown
+    [Arguments]    ${titleName}
+    Delete Post By Name    ${titleName}
+
+Edit Post's Teardown
+    [Arguments]    ${titleName}
+    Delete Post By Name    ${titleName}

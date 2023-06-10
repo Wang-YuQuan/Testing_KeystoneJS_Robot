@@ -1,0 +1,61 @@
+*** Settings ***
+Library    SeleniumLibrary
+Resource    ../Post/AllKeyword.txt
+
+*** Keywords ***
+Go To Comment Page
+    Click Element    //li[@data-list-path='post-comments']
+    Sleep    1s
+
+Create A New Comment
+    [Arguments]    ${author}    ${post}
+    
+    Open Create Comment
+    Select Dropdown Field    //*[label[@for='author']]/label/following-sibling::div    //*[label[@for='author']]/label/following-sibling::div//*[@class='Select-input']/input    ${author}
+    Select Dropdown Field    //*[label[@for='post']]/label/following-sibling::div    //*[label[@for='post']]/label/following-sibling::div//*[@class='Select-input']/input    ${post}
+    Click Element    //*[@data-button-type='submit']
+    Sleep    2s
+
+Open Create Comment
+    ${CreateCommentButton1} =    Set Variable    //*[@data-e2e-list-create-button='no-results']
+    ${CreateCommentButton2} =    Set Variable    //*[@data-e2e-list-create-button='header']
+    ${result} =    Run Keyword And Return Status    Wait Until Element Is Visible    ${CreateCommentButton1}    timeout= 2s    error=Button is not visible.
+    Run Keyword If    '${result}' == 'True'    Click Element    ${CreateCommentButton1}
+    ...       ELSE    Click Element    ${CreateCommentButton2}
+
+Verify New Comment Should Be Exist
+    [Arguments]    ${titleName}
+    Click Element    //*[@data-list-path='post-comments']/a
+    Wait Until Element Is Visible    //*[tbody]//tr//td//a[normalize-space()='${titleName}']    timeout= 2s    error=Comment title is not visible.
+
+Open Comment By Post Name
+    [Arguments]    ${postName}
+    Go To Comment Page
+    ${elements} =    Set Variable    //*[td[normalize-space()='${postName}']]/td[@class='ItemList__col']/a
+    Click Element    ${elements}
+
+Edit Comment Content
+    [Arguments]    ${author}    ${postName}    ${commentState}
+    Select Dropdown Field    //*[@for='author']/label/following-sibling::div    //*[@for='author']/label/following-sibling::div//*[@class='Select-input']/input    ${author}
+    Select Dropdown Field    //*[@for='post']/label/following-sibling::div    //*[@for='post']/label/following-sibling::div//*[@class='Select-input']/input    ${postName}
+    Select Dropdown Field    //*[@for='commentState']/label/following-sibling::div    //*[@for='commentState']/label/following-sibling::div//*[@class='Select-input']/input    ${commentState}
+    Click Element    //*[@data-button='update']
+
+Verify Edited Comment In Commentlist
+    [Arguments]    ${author}    ${postName}    ${commentState}
+    Go To Comment Page
+    Wait Until Element Is Visible    //*[tbody]//tr//td//a[normalize-space()='${author}']    timeout= 2s    error=Comment author is not visible.
+    Wait Until Element Is Visible    //*[tbody]//tr//td//a[normalize-space()='${postName}']    timeout= 2s    error=Comment Post is not visible.
+    Wait Until Element Is Visible    //*[tbody]//tr//td//div[normalize-space()='${commentState}']    timeout= 2s    error=Comment State is not visible.
+
+Verify Only Filter Comment In Commentlist
+    [Arguments]    ${postName}
+    Go To Comment Page
+    Wait Until Element Is Not Visible    //*[tbody]//tr//td//a[not(normalize-space()='${postName}')]    error=Item is visible.
+
+Delete Comment By Post Name
+    [Arguments]    ${potsName}
+    Go To Comment Page
+    Click Element    //*[@data-list-path='post-comments']/a
+    Click Element    //*[tbody]//tr//td//a[normalize-space()='${potsName}']/../..//*[@class='ItemList__col--control ItemList__col--delete']/button
+    Click Element    //*[@data-button-type='confirm']

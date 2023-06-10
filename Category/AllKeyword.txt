@@ -1,0 +1,49 @@
+*** Settings ***
+Library    SeleniumLibrary
+Resource    ../Post/AllKeyword.txt
+
+*** Keywords ***
+Go To Category Page
+    Click Element    //*[@data-list-path='post-categories']/a
+    Sleep    1s
+
+Verify Create Empty Category Title Warning Message Should Be Visible
+    Open Create Category
+    Input Text    //*[@class='FormField__inner field-size-full']/input    ${EMPTY}
+    Click Element    //*[@data-button-type='submit']
+    Verify Warning Message Should Be Visible
+    Click Element    //*[@data-button-type='cancel']
+
+Create A New Category
+    [Arguments]    ${name}
+    Go To Category Page
+    Open Create Category
+    Input Text    //*[@class='FormField__inner field-size-full']/input    ${name}
+    Click Element    //*[@data-button-type='submit']
+    Sleep    2s
+
+Open Create Category
+    ${CreatePostButton1} =    Set Variable    //*[@data-e2e-list-create-button='no-results']
+    ${CreatePostButton2} =    Set Variable    //*[@data-e2e-list-create-button='header']
+    ${result} =    Run Keyword And Return Status    Wait Until Element Is Visible    ${CreatePostButton1}    timeout= 2s    error=Button is not visible.
+    Run Keyword If    '${result}' == 'True'    Click Element    ${CreatePostButton1}
+    ...       ELSE    Click Element    ${CreatePostButton2}
+
+Verify New Category Should Be Exist
+    [Arguments]    ${categoryName}
+    Go To Category Page
+    Wait Until Element Is Visible    //*[tbody]//tr//td//a[normalize-space()='${categoryName}']    timeout= 2s    error=Category is not visible.
+
+Input Category Filter
+    [Arguments]    ${categoryName}
+    Go To Category Page
+    Wait Until Element Is Visible    //*[@placeholder='Search']    timeout= 2s    error=Search input is not visible.
+    Input Text    //*[@placeholder='Search']    ${categoryName}
+    Sleep    2s
+
+Delete Category By Name
+    [Arguments]    ${categoryName}
+    Go To Category Page
+    Input Category Filter    test
+    Click Element    //*[contains(@class, 'ItemList__col--delete')]
+    Click Element    //*[@data-button-type='confirm']

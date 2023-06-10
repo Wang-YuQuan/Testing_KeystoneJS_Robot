@@ -1,0 +1,16 @@
+*** Settings ***
+Library    SeleniumLibrary
+
+*** Keywords ***
+Login As Admin User
+    Open Browser    http://127.0.0.1:3000/keystone/signin    Chrome
+    Maximize Browser Window
+    Input Text    //*[@for='email']/input    demo@keystonejs.com
+    Input Text    //*[@for='password']/input    demo
+    Click Element    //*[@class='css-2960tt']
+    Sleep    2s
+    
+Log Out
+    Click Element    //*[@data-section-label='octicon-home']
+    Click Element    //*[@title='Sign Out']
+    Sleep    2s

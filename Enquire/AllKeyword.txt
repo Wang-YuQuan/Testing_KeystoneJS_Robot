@@ -1,0 +1,46 @@
+*** Settings ***
+Library    SeleniumLibrary
+Resource    ../Post/AllKeyword.txt
+
+*** Keywords ***
+Go To Front Page
+    Click Element    //*[@data-section-label='octicon-globe']/a
+    Sleep    1s
+
+Go To Contact Page
+    Click Element    //*[normalize-space()='Contact']/a
+    Sleep    1s
+
+Go To Enquire Page
+    Click Element    //*[@data-section-label='Enquiries']/a
+    Sleep    1s
+
+Create A New Contact
+    [Arguments]    ${name}    ${email}    ${phone}    ${regarding}    ${message}
+    Input Text    //*[@name='name.full']    ${name}
+    Input Text    //*[@name='email']    ${email}
+    Input Text    //*[@name='phone']    ${phone}
+    Click Element    //*[select]
+    Click Element    //*[select]/select/option[@value='${regarding}']
+    Input Text    //*[@name='message']    ${message}
+    Click Element    //*[@type='submit']
+    Click Element    //*[normalize-space()='Admin UI']/a
+
+Verify New Enquire Should Be Exist
+    [Arguments]    ${name}
+    Go To Enquire Page
+    Wait Until Element Is Visible    //*[tbody]//tr//td//a[normalize-space()='${name}']    timeout= 2s    error=Enquire is not visible.
+
+Input Enquire Filter
+    [Arguments]    ${categoryName}
+    Go To Enquire Page
+    Wait Until Element Is Visible    //*[@placeholder='Search']    timeout= 2s    error=Search input is not visible.
+    Input Text    //*[@placeholder='Search']    ${categoryName}
+    Sleep    2s
+
+Delete Enquire By Name
+    [Arguments]    ${name}
+    Go To Enquire Page
+    Input Enquire Filter    ${name}
+    Click Element    //*[contains(@class, 'ItemList__col--delete')]
+    Click Element    //*[@data-button-type='confirm']
