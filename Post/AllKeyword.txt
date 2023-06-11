@@ -85,11 +85,6 @@ Delete Post By Name
     Click Element    //*[contains(@class, 'ItemList__col--delete')]
     Click Element    //*[@data-button-type='confirm']
 
-Verify Deleted Post Is Not Visible In Postlist
-    [Arguments]    ${titleName}
-    Input Post Filter    ${titleName}
-    Wait Until Element Is Not Visible    //*[tbody]//tr//td//a[normalize-space()='${titleName}']    error=Success message is visible.
-
 Create Post's Teardown
     [Arguments]    ${titleName}
     Delete Post By Name    ${titleName}

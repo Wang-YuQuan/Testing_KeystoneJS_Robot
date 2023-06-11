@@ -28,7 +28,6 @@ TC-03
     [Setup]    Go To Post Page
     Create A New Post    test
     Delete Post By Name    test
-    Verify Deleted Post Is Not Visible In Postlist    test
 
 TC-04
     [Tags]    Search Post

@@ -57,5 +57,6 @@ Delete Comment By Post Name
     [Arguments]    ${potsName}
     Go To Comment Page
     Click Element    //*[@data-list-path='post-comments']/a
-    Click Element    //*[tbody]//tr//td//a[normalize-space()='${potsName}']/../..//*[@class='ItemList__col--control ItemList__col--delete']/button
+    Wait Until Element Is Visible    //*[contains(@class, 'ItemList__col--delete')]    error=Delete is not visible.
+    Click Element    //*[contains(@class, 'ItemList__col--delete')]
     Click Element    //*[@data-button-type='confirm']
